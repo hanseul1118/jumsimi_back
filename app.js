@@ -1,7 +1,7 @@
 const express = require('express');
 const app = express();
 const mysql = require('mysql');
-const connectinSettingInfo = require(__dirname + '/connectionSetting.json');
+const connectinSettingInfo = require(__dirname + '/config/connectionSetting.json');
 
 const customerMenuApi = require('./routes/API/customer/MenuApi.js');
 const customerRestaurantApi = require('./routes/API/customer/RestaurantApi.js');
@@ -26,8 +26,8 @@ connection.query("SELECT * FROM USER;", (err, result) => {
     if (err) {
         console.log(err);
     }
-    console.log('test');
-    console.log(result);
+    // console.log('test');
+    // console.log(result);
     connection.end();
 });
 
