@@ -6,8 +6,6 @@ const asyncHandler = require('express-async-handler')
 const express = require('express')
 const router = express.Router()
 
-// const tokenHandler = require(__dirname + "/middleware/tokenHandler")
-
 router.post('/api/restaurant', tokenHandler.verifyToken, asyncHandler(async (req, res, next) => {
   
       // Connections are Automatically Released.
