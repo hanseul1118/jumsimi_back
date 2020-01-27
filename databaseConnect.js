@@ -1,6 +1,6 @@
 const {promisify} = require('util');
 const mysql = require('mysql');
-const connectinSettingInfo = require(__dirname + '/connectionSetting.json');
+const connectinSettingInfo = require('../jumsimi_back_config/connectionSetting.json');
 
 const pool = mysql.createPool({
   host: connectinSettingInfo.host,

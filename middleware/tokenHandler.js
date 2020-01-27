@@ -1,5 +1,5 @@
 const jwt = require("jsonwebtoken");
-const config = require("../config/tokenKey.json");
+const config = require("../../jumsimi_back_config/tokenKey.json");
 const errorHandler = require("./errorHandler.js");
 const code = require("./errorCode.js");
 
