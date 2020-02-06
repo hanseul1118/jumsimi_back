@@ -7,7 +7,7 @@ const express = require('express')
 const router = express.Router()
 
 router.get('/api/menudetail', asyncHandler(async (req, res, next) => {
-  console.log('req.query : ', req.query)
+
   const menuId = req.query.menuId;
 
   if (!menuId) {
@@ -22,23 +22,23 @@ router.get('/api/menudetail', asyncHandler(async (req, res, next) => {
 
   const queryString = 
   `SELECT 
-          M.PRICE					        AS PRICE
-        , M.ORIGINAL_IMAGE		    AS MENU_IMAGE 
-        , M.CONTENTS				      AS CONTENTS 
-        , M.MENU_TYPE				      AS MENU_TYPE 
-        , M.START_DATE			      AS START_DATE 
-        , M.END_DATA				      AS END_DATA 
-        , R.RESTAURANT_NAME		    AS RESTAURANT_NAME
-        , R.RESTAURANT_ADDRESS 	  AS RESTAURANT_ADDRESS
-        , R.RESTAURANT_PHONE	 	  AS RESTAURANT_PHONE
-        , R.LUNCH_OPERATION_TIME 	AS OPERATION_TIME
-        , R.ORIGINAL_IMAGE_1		  AS RESTAURANT_IMAGE_1
-        , R.ORIGINAL_IMAGE_2		  AS RESTAURANT_IMAGE_2
-        , R.ORIGINAL_IMAGE_3		  AS RESTAURANT_IMAGE_3
-        , R.ORIGINAL_IMAGE_4		  AS RESTAURANT_IMAGE_4
-        , R.RESTAURANT_ID			    AS RESTAURANT_ID 
-        , R.GPS_X                 AS GPS_X
-        , R.GPS_Y                 AS GPS_Y
+          M.PRICE					                            AS PRICE
+        , M.ORIGINAL_IMAGE		                        AS MENU_IMAGE 
+        , M.CONTENTS				                          AS CONTENTS 
+        , M.MENU_TYPE				                          AS MENU_TYPE 
+        , DATE_FORMAT(M.START_DATE, '%Y-%m-%d')			  AS START_DATE 
+        , DATE_FORMAT(M.END_DATE  , '%Y-%m-%d')				AS END_DATE 
+        , R.RESTAURANT_NAME		                        AS RESTAURANT_NAME
+        , R.RESTAURANT_ADDRESS 	                      AS RESTAURANT_ADDRESS
+        , R.RESTAURANT_PHONE	 	                      AS RESTAURANT_PHONE
+        , R.LUNCH_OPERATION_TIME 	                    AS OPERATION_TIME
+        , R.ORIGINAL_IMAGE_1		                      AS RESTAURANT_IMAGE_1
+        , R.ORIGINAL_IMAGE_2		                      AS RESTAURANT_IMAGE_2
+        , R.ORIGINAL_IMAGE_3		                      AS RESTAURANT_IMAGE_3
+        , R.ORIGINAL_IMAGE_4		                      AS RESTAURANT_IMAGE_4
+        , R.RESTAURANT_ID			                        AS RESTAURANT_ID 
+        , R.GPS_X                                     AS GPS_X
+        , R.GPS_Y                                     AS GPS_Y
      FROM MENU            M
     INNER JOIN RESTAURANT R
        ON M.RESTAURANT_ID = R.RESTAURANT_ID 
@@ -58,7 +58,7 @@ router.get('/api/menudetail', asyncHandler(async (req, res, next) => {
           contents :rows[0].CONTENTS ,
           menu_type :rows[0].MENU_TYPE ,
           start_date :rows[0].START_DATE ,
-          end_data :rows[0].END_DATA ,
+          end_date :rows[0].END_DATE ,
           restaurant_name:rows[0].RESTAURANT_NAME,
           restaurant_address:rows[0].RESTAURANT_ADDRESS,
           restaurant_phone:rows[0].RESTAURANT_PHONE,
@@ -78,7 +78,6 @@ router.get('/api/menudetail', asyncHandler(async (req, res, next) => {
           msg: "메뉴정보가 존재하지 않습니다."
         });
       }
-      console.log(rows)
   })
 	
 }))
