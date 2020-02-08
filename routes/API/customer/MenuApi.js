@@ -97,7 +97,7 @@ router.get('/api/menudetail', asyncHandler(async (req, res, next) => {
 */
 router.get('/api/restaurant', asyncHandler(async (req, res, next) => {
 console.log('req.query', req.query)
-  const pageCnt = req.query.pageCnt;
+  const pageCnt    = Number(req.query.pageCnt);
   const pageNumber = req.query.pageNumber;
 
   if (!pageCnt || !pageNumber) {
@@ -111,18 +111,18 @@ console.log('req.query', req.query)
     return;
   }
   
-  const firstPostNum = (pageNumber - 1) * pageCnt  // 조회할 첫번쨰 게시물 번호 세팅
+  let firstPostNum = (pageNumber - 1) * pageCnt  // 조회할 첫번쨰 게시물 번호 세팅
 
   const queryString = 
-         `SELECT M.MENU_ID                    AS MENU_ID
-               , R.RESTAURANT_NAME				    AS RESTAURANT_NAME             
-               , M.CONTENTS                   AS CONTENTS                 
-               , M.MENU_TYPE                  AS MENU_TYPE              
-               , M.PRICE                      AS PRICE                 
-               , R.LUNCH_OPERATION_TIME       AS LUNCH_OPERATION_TIME  
-               , R.ORIGINAL_IMAGE_1           AS ORIGINAL_IMAGE_1      
-               , R.GPS_X                      AS GPS_X                  
-               , R.GPS_Y                      AS GPS_Y                  
+         `SELECT M.MENU_ID                    AS menuId
+               , R.RESTAURANT_NAME				    AS restaurantName             
+               , M.CONTENTS                   AS contents                 
+               , M.MENU_TYPE                  AS menuType              
+               , M.PRICE                      AS price                 
+               , R.LUNCH_OPERATION_TIME       AS lunchOperationTime  
+               , R.ORIGINAL_IMAGE_1           AS originalImage1      
+               , R.GPS_X                      AS gpsX                  
+               , R.GPS_Y                      AS gpxY                  
             FROM RESTAURANT R                                            
       LEFT OUTER JOIN MENU M                                            
                 ON R.RESTAURANT_ID = M.RESTAURANT_ID                    
@@ -133,12 +133,11 @@ console.log('req.query', req.query)
     , function (err, rows, feilds) {
       if (err) throw new Error (err)
       
-      console.log('rows', rows)
       if (rows.length > 0) {
         res.status(errCode.OK);
         res.json({
           errCode: errCode.OK,
-          retaurantList: rows
+          restaurantList: rows
         });
       } else {
         res.status(errCode.OK);
