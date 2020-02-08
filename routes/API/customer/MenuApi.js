@@ -83,7 +83,8 @@ router.get('/api/menudetail', asyncHandler(async (req, res, next) => {
 }))
 
 router.put('/api/menu', asyncHandler(async (req, res, next) => {
-  const menuId = req.query.menuId;
+  
+  const menuId = req.body.params.menuId;
 
   if (!menuId) {
     res.status(errCode.OK);
@@ -95,11 +96,11 @@ router.put('/api/menu', asyncHandler(async (req, res, next) => {
     return;
   }
 
-  const price = req.body.price;
-  const menuImage = req.body.menuImage;
-  const contents = req.body.contents;
-  const startDate = req.body.start_date;
-  const endDate = req.body.end_date;
+  const price = req.body.params.price;
+  const menuImage = req.body.params.menuImage;
+  const contents = req.body.params.contents;
+  const startDate = req.body.params.startDate;
+  const endDate = req.body.params.endDate;
 
   const queryString = 
   `UPDATE MENU 
@@ -107,20 +108,21 @@ router.put('/api/menu', asyncHandler(async (req, res, next) => {
 		     , ORIGINAL_IMAGE = ?
 		     , CONTENTS = ?
 		     , START_DATE = ?
-		     , START_DATE = ?
+		     , END_DATE = ?
 		     , MODIFIED_TIME = NOW()
    WHERE MENU_ID = ?`
   
    await pool.query(queryString
-    , price
+    , [ price
     , menuImage
     , contents
     , startDate
     , endDate
-    , menuId 
+    , menuId ]
     , function (err, result) {
+      console.log("err : ", err)
       if (err) throw new Error (err)
-
+      console.log("result", result)
       if (result && result.affectedRows > 0) {
         res.status(errCode.OK);
         res.json({
