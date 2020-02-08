@@ -184,7 +184,7 @@ router.get('/api/menu', asyncHandler(async (req, res, next) => {
           res.status(errCode.OK);
           res.json({
             errCode: errCode.OK,
-            restaurantList: rows
+            menuList: rows
           });
         } else {
           res.status(errCode.OK);
