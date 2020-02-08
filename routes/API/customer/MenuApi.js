@@ -82,4 +82,59 @@ router.get('/api/menudetail', asyncHandler(async (req, res, next) => {
 	
 }))
 
+router.put('/api/menu', asyncHandler(async (req, res, next) => {
+  const menuId = req.query.menuId;
+
+  if (!menuId) {
+    res.status(errCode.OK);
+    res.json({
+      errCode: errCode.BADREQUEST,
+      msg: `입력값을 확인해주세요.
+            menuId=${menuId}`
+    });
+    return;
+  }
+
+  const price = req.body.price;
+  const menuImage = req.body.menuImage;
+  const contents = req.body.contents;
+  const startDate = req.body.start_date;
+  const endDate = req.body.end_date;
+
+  const queryString = 
+  `UPDATE MENU 
+	    SET  PRICE = ?
+		     , ORIGINAL_IMAGE = ?
+		     , CONTENTS = ?
+		     , START_DATE = ?
+		     , START_DATE = ?
+		     , MODIFIED_TIME = NOW()
+   WHERE MENU_ID = ?`
+  
+   await pool.query(queryString
+    , price
+    , menuImage
+    , contents
+    , startDate
+    , endDate
+    , menuId 
+    , function (err, result) {
+      if (err) throw new Error (err)
+
+      if (result && result.affectedRows > 0) {
+        res.status(errCode.OK);
+        res.json({
+          errCode: errCode.OK,
+          msg: result.message
+        });
+      } else {
+        res.status(errCode.OK);
+        res.json({
+          errCode: errCode.NOTFOUND,
+          msg: "메뉴수정을 실패하였습니다."
+        });
+      }
+    });
+}))
+
 module.exports = router;
