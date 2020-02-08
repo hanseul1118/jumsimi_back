@@ -54,22 +54,22 @@ router.get('/api/menudetail', asyncHandler(async (req, res, next) => {
         res.json({
           errCode: errCode.OK,
           price:rows[0].PRICE,
-          menu_image :rows[0].MENU_IMAGE ,
+          menuImage :rows[0].MENU_IMAGE ,
           contents :rows[0].CONTENTS ,
-          menu_type :rows[0].MENU_TYPE ,
-          start_date :rows[0].START_DATE ,
-          end_date :rows[0].END_DATE ,
-          restaurant_name:rows[0].RESTAURANT_NAME,
-          restaurant_address:rows[0].RESTAURANT_ADDRESS,
-          restaurant_phone:rows[0].RESTAURANT_PHONE,
-          operation_time:rows[0].OPERATION_TIME,
-          restaurant_image_1:rows[0].RESTAURANT_IMAGE_1,
-          restaurant_image_2:rows[0].RESTAURANT_IMAGE_2,
-          restaurant_image_3:rows[0].RESTAURANT_IMAGE_3,
-          restaurant_image_4:rows[0].RESTAURANT_IMAGE_4,
-          restaurant_id :rows[0].RESTAURANT_ID ,
-          gps_x:rows[0].gps_x,
-          gps_y:rows[0].gps_y
+          menuType :rows[0].MENU_TYPE ,
+          startDate :rows[0].START_DATE ,
+          endDate :rows[0].END_DATE ,
+          restaurantName:rows[0].RESTAURANT_NAME,
+          restaurantAddress:rows[0].RESTAURANT_ADDRESS,
+          restaurantPhone:rows[0].RESTAURANT_PHONE,
+          operationTime:rows[0].OPERATION_TIME,
+          restaurantImage1:rows[0].RESTAURANT_IMAGE_1,
+          restaurantImage2:rows[0].RESTAURANT_IMAGE_2,
+          restaurantImage3:rows[0].RESTAURANT_IMAGE_3,
+          restaurant_Image4:rows[0].RESTAURANT_IMAGE_4,
+          restaurantId :rows[0].RESTAURANT_ID ,
+          gpsX:rows[0].GPS_X,
+          gpsY:rows[0].GPS_Y
         });
       } else {
         res.status(errCode.OK);
