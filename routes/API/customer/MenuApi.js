@@ -139,4 +139,61 @@ router.put('/api/menu', asyncHandler(async (req, res, next) => {
     });
 }))
 
+/*
+메뉴 리스트 조회
+*/
+router.get('/api/menu', asyncHandler(async (req, res, next) => {
+  console.log('req.query', req.query)
+    const pageCnt    = Number(req.query.pageCnt);
+    const pageNumber = req.query.pageNumber;
+  
+    if (!pageCnt || !pageNumber) {
+      res.status(errCode.OK);
+      res.json({
+        errCode: errCode.BADREQUEST,
+        msg: `입력값을 확인해주세요.
+              pageCnt=${pageCnt} 
+              pageNumber=${pageNumber}`
+      });
+      return;
+    }
+    
+    let firstPostNum = (pageNumber - 1) * pageCnt  // 조회할 첫번쨰 게시물 번호 세팅
+  
+    const queryString = 
+           `SELECT M.MENU_ID                    AS menuId
+                 , R.RESTAURANT_NAME				    AS restaurantName             
+                 , M.CONTENTS                   AS contents                 
+                 , M.MENU_TYPE                  AS menuType              
+                 , M.PRICE                      AS price                 
+                 , R.LUNCH_OPERATION_TIME       AS lunchOperationTime  
+                 , R.ORIGINAL_IMAGE_1           AS originalImage1      
+                 , R.GPS_X                      AS gpsX                  
+                 , R.GPS_Y                      AS gpxY                  
+              FROM RESTAURANT R                                            
+        LEFT OUTER JOIN MENU M                                            
+                  ON R.RESTAURANT_ID = M.RESTAURANT_ID                    
+            ORDER BY M.MODIFIED_TIME DESC                                             
+              LIMIT  ?, ?`                                                                              
+    
+    await pool.query(queryString, [firstPostNum , pageCnt]
+      , function (err, rows, feilds) {
+        if (err) throw new Error (err)
+        
+        if (rows.length > 0) {
+          res.status(errCode.OK);
+          res.json({
+            errCode: errCode.OK,
+            restaurantList: rows
+          });
+        } else {
+          res.status(errCode.OK);
+          res.json({
+            errCode: errCode.BADREQUEST,
+            msg: "식당이 존재하지 않습니다."
+          });
+        }
+    })
+    
+  }))
 module.exports = router;
