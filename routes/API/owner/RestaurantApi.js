@@ -143,35 +143,35 @@ router.post(
       }
 
       resId = result[0][0].uuid 
-      // 'r'esult[0][0]' looks like wired, but this library returns a tuple when the result of query is a one records.
+      // 'result[0][0]' looks like wired, but this library returns a tuple when the result of query is a one records.
       // So if we want just the first record of the result, we can access it with result[0][0].
 
       const queryString02 =
       `INSERT INTO RESTAURANT
-                  (RESTAURANT_ID,
-                    USER_ID,
-                    RESTAURANT_NAME,
-                    RESTAURANT_ADDRESS,
-                    RESTAURANT_PHONE,
-                    GPS_X,
-                    GPS_Y,
-                    LUNCH_OPERATION_TIME,
-                    ORIGINAL_IMAGE_1,
-                    MODIFIED_USER_ID,
-                    CREATED_TIME,
-                    MODIFIED_TIME)
-      VALUES      ( ?, 
-                    ?, 
-                    ?, 
-                    ?, 
-                    ?, 
-                    ?, 
-                    ?, 
-                    ?, 
-                    ?, 
-                    ?,
-                    CURRENT_TIMESTAMP(), 
-                    CURRENT_TIMESTAMP())`;
+                 ( RESTAURANT_ID
+                 , USER_ID
+                 , RESTAURANT_NAME
+                 , RESTAURANT_ADDRESS
+                 , RESTAURANT_PHONE
+                 , GPS_X
+                 , GPS_Y
+                 , LUNCH_OPERATION_TIME
+                 , ORIGINAL_IMAGE_1
+                 , MODIFIED_USER_ID
+                 , CREATED_TIME
+                 , MODIFIED_TIME)
+      VALUES     ( ? 
+                 , ? 
+                 , ? 
+                 , ? 
+                 , ? 
+                 , ? 
+                 , ? 
+                 , ? 
+                 , ? 
+                 , ?
+                 , CURRENT_TIMESTAMP()
+                 , CURRENT_TIMESTAMP())`;
 
       await connection.execute(
         queryString02,
@@ -204,26 +204,26 @@ router.post(
       
       const queryString03 =
       `INSERT INTO MENU
-                  ( RESTAURANT_ID
-                  , MENU_ID
-                  , PRICE
-                  , ORIGINAL_IMAGE
-                  , CONTENTS
-                  , MENU_TYPE
-                  , START_DATE
-                  , END_DATE
-                  , CREATED_TIME
-                  , MODIFIED_TIME)
-      VALUES      ( ?
-                  , UUID()
-                  , 0
-                  , 'https://jumsimiowner.pickapick.io/res/unnamed.gif'
-                  , '내용을 입력해 주세요.'
-                  , '01'
-                  , '20200101'
-                  , '20200101'
-                  , CURRENT_TIMESTAMP()
-                  , CURRENT_TIMESTAMP())`;
+                 ( RESTAURANT_ID
+                 , MENU_ID
+                 , PRICE
+                 , ORIGINAL_IMAGE
+                 , CONTENTS
+                 , MENU_TYPE
+                 , START_DATE
+                 , END_DATE
+                 , CREATED_TIME
+                 , MODIFIED_TIME)
+      VALUES     ( ?
+                 , UUID()
+                 , 0
+                 , 'https://jumsimiowner.pickapick.io/res/unnamed.gif'
+                 , '내용을 입력해 주세요.'
+                 , '01'
+                 , '20200101'
+                 , '20200101'
+                 , CURRENT_TIMESTAMP()
+                 , CURRENT_TIMESTAMP())`;
 
       await connection.execute(queryString03, [resId], function(err, result, feilds) {
         
@@ -260,7 +260,7 @@ router.post(
     } finally {
 
       connection.release();
-
+      
     }
 
   })
