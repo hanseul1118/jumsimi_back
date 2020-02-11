@@ -7,7 +7,7 @@ const router = express.Router()
 
 const multer = require("multer");
 const inMemoryStorage = multer.memoryStorage();
-const uploadStrategy = multer({ storage: inMemoryStorage }).single("file"); // or .single('image')
+const uploadStrategy = multer({ storage: inMemoryStorage, limits: { fieldSize: 10 * 1024 * 1024 } }).single("file"); // or .single('image')
 
 // 메뉴 상세 조회
 router.get('/api/menudetail', asyncHandler(async (req, res, next) => {
@@ -186,22 +186,25 @@ router.put('/api/menu', uploadStrategy, asyncHandler(async (req, res, next) => {
       , menuId 
     ]
     
-    let result = await connection.excute(queryString, queryParam);
-    console.log(result) 
-
-    res.status(errCode.OK);
-    res.json({
-      errCode: errCode.OK,
-      msg: result.message
-    });
+    let result = await connection.execute(queryString, queryParam);
+    
+    if (result[0].affectedRows == 1) {
+      res.status(errCode.OK);
+      res.json({
+        errCode: errCode.OK,
+        msg: result.message
+      });
+    } else {
+      res.status(errCode.OK);
+      res.json({
+        errCode: errCode.NOTFOUND,
+        msg: "메뉴수정을 실패하였습니다."
+      });
+    }
 
   } catch (err) {
-      
-    res.status(errCode.OK);
-    res.json({
-      errCode: errCode.NOTFOUND,
-      msg: "메뉴수정을 실패하였습니다."
-    });
+    
+    imageHandler.deleteImages(blockBlobURL, blobName, "SQL error");
     
     throw err
 
