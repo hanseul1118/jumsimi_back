@@ -1,8 +1,13 @@
 const errCode = require("../../../middleware/errorCode");
+const imageHandler = require("../../../middleware/imageHandler");
 const pool = require('../../../databaseConnect.js')
 const asyncHandler = require('express-async-handler')
 const express = require('express')
 const router = express.Router()
+
+const multer = require("multer");
+const inMemoryStorage = multer.memoryStorage();
+const uploadStrategy = multer({ storage: inMemoryStorage }).single("file"); // or .single('image')
 
 // 메뉴 상세 조회
 router.get('/api/menudetail', asyncHandler(async (req, res, next) => {
@@ -96,61 +101,116 @@ router.get('/api/menudetail', asyncHandler(async (req, res, next) => {
 }))
 
 // 메뉴 업데이트
-router.put('/api/menu', asyncHandler(async (req, res, next) => {
+router.put('/api/menu', uploadStrategy, asyncHandler(async (req, res, next) => {
   
-  const menuId = req.body.menuId;
+  let file = req.file;
 
-  if (!menuId) {
-    res.status(errCode.OK);
-    res.json({
+  if (!file) {
+    res.status(errCode.OK).json({
       errCode: errCode.BADREQUEST,
-      msg: `입력값을 확인해주세요.
-            menuId=${menuId}`
+      msg: "file이 없습니다."
     });
     return;
   }
-  
+
+  let originalImage = ''
+  let blockBlobURL = ''
+  let blobName = ''
+
+  try {
+
+    let result = await imageHandler.imageUpload(file)
+
+    originalImage = result.src
+    blockBlobURL = result.URL
+    blobName = result.name
+
+  } catch (err) {
+
+    if (err) {
+      console.log('err : ', err);
+      res.status(errCode.OK);
+      res.json({
+        errCode: errCode.SERVERERROR,
+        msg: err
+      });
+      return;
+    }
+
+  }
+
+  const menuId = req.body.menuId;
   const price = req.body.price;
-  const menuImage = req.body.menuImage;
   const contents = req.body.contents;
   const startDate = req.body.startDate;
   const endDate = req.body.endDate;
 
+  if (!menuId
+   || !price
+   || !contents
+   || !startDate
+   || !endDate) {
+    res.status(errCode.OK);
+    res.json({
+      errCode: errCode.BADREQUEST,
+      msg: `입력값을 확인해주세요.
+            menuId=${menuId}
+          , price=${price}
+          , contents=${contents}
+          , startDate=${startDate}
+          , endDate=${endDate}`
+    });
+    return;
+  }
+  
   const connection = await pool.getConnection();
 
-  const queryString = 
-  `UPDATE MENU 
-	    SET PRICE = ?
-		    , ORIGINAL_IMAGE = ?
-		    , CONTENTS = ?
-		    , START_DATE = ?
-		    , END_DATE = ?
-		    , MODIFIED_TIME = NOW()
-    WHERE MENU_ID = ?`
-  
-   await connection.excute(queryString
-    , [ price
-    , menuImage
-    , contents
-    , startDate
-    , endDate
-    , menuId ]
-    , function (err, result) {
-      if (err) throw new Error (err)
-      if (result && result.affectedRows > 0) {
-        res.status(errCode.OK);
-        res.json({
-          errCode: errCode.OK,
-          msg: result.message
-        });
-      } else {
-        res.status(errCode.OK);
-        res.json({
-          errCode: errCode.NOTFOUND,
-          msg: "메뉴수정을 실패하였습니다."
-        });
-      }
+  try {
+    
+    const queryString = 
+    `UPDATE MENU 
+        SET PRICE = ?
+          , ORIGINAL_IMAGE = ?
+          , CONTENTS = ?
+          , START_DATE = ?
+          , END_DATE = ?
+          , MODIFIED_TIME = NOW()
+      WHERE MENU_ID = ?`
+    
+    let queryParam = [
+      price
+      , originalImage
+      , contents
+      , startDate
+      , endDate
+      , menuId 
+    ]
+    
+    let result = await connection.excute(queryString, queryParam);
+    console.log(result) 
+
+    res.status(errCode.OK);
+    res.json({
+      errCode: errCode.OK,
+      msg: result.message
     });
+
+  } catch (err) {
+      
+    res.status(errCode.OK);
+    res.json({
+      errCode: errCode.NOTFOUND,
+      msg: "메뉴수정을 실패하였습니다."
+    });
+    
+    throw err
+
+  } finally {
+
+    connection.release();
+
+  }
+
 
 }))
 
@@ -194,8 +254,6 @@ router.get('/api/menu', asyncHandler(async (req, res, next) => {
              LIMIT ?, ?`                                                                              
     
       let result = await pool.query(queryString, [firstPostNum , pageCnt])
-
-      console.log('result[0] : ', result[0])
 
       if (result[0].length > 0) {
         res.status(errCode.OK);
