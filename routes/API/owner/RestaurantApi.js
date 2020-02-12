@@ -1,5 +1,6 @@
 const errCode = require("../../../middleware/errorCode");
 const imageHandler = require("../../../middleware/imageHandler");
+const tokenFun = require("../../../middleware/tokenHandler.js");
 const pool = require("../../../databaseConnect.js");
 const asyncHandler = require("express-async-handler");
 const express = require("express");
@@ -10,9 +11,19 @@ const inMemoryStorage = multer.memoryStorage();
 const uploadStrategy = multer({ storage: inMemoryStorage }).single("file"); // or .single('image')
 
 router.post(
-  "/api/restaurant", uploadStrategy, 
+  "/api/restaurant", tokenFun.verifyToken, uploadStrategy, 
   asyncHandler(async (req, res, next) => {
     
+    //토큰 유효성 검사
+    const token = req.query.token;
+    req.tokenContent = tokenFun.verifyData(token);
+    
+    if (req.tokenContent.errCode != errCode.OK) {
+      res.status(errCode.OK);
+      res.json(req.tokenContent);
+      return;
+    }
+
     let file = req.file;
 
     if (!file) {
