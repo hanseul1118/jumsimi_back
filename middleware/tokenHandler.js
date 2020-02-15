@@ -28,6 +28,6 @@ exports.verifyData = function(token) {
   try {
     return { errCode: code.OK, content: jwt.verify(token, config.key) };
   } catch (err) {
-    return errorHandler.TokenErrorHandler(err, connection);
+    return errorHandler.TokenErrorHandler(err);
   }
 };
