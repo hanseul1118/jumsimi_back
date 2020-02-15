@@ -128,121 +128,11 @@ router.put('/api/menu', tokenFun.verifyToken, uploadStrategy, asyncHandler(async
   let file = req.file;
 
   if (!file) {
-    res.status(errCode.OK).json({
-      errCode: errCode.BADREQUEST,
-      msg: "file이 없습니다."
-    });
-    return;
+    menuUpdateWithoutFile(req, res)
+  }else{
+    menuUpdateWithFile(req, res)
   }
 
-  let originalImage = ''
-  let blockBlobURL = ''
-  let blobName = ''
-
-  try {
-
-    let result = await imageHandler.imageUpload(file)
-
-    originalImage = result.src
-    blockBlobURL = result.URL
-    blobName = result.name
-
-  } catch (err) {
-
-    if (err) {
-      res.status(errCode.OK);
-      res.json({
-        errCode: errCode.SERVERERROR,
-        msg: err
-      });
-      return;
-    }
-  }
-
-  const menuId = req.body.menuId;
-  const price = req.body.price;
-  const contents = req.body.contents;
-  const menuType = req.body.menuType;
-  const startDate = req.body.startDate;
-  const endDate = req.body.endDate;
-  const modifiedUserId = req.tokenContent.content.userId;
-
-  if (!menuId
-   || !menuType
-   || !price
-   || !contents
-   || !startDate
-   || !endDate) {
-    res.status(errCode.OK);
-    res.json({
-      errCode: errCode.BADREQUEST,
-      msg: `입력값을 확인해주세요.
-            menuId=${menuId}
-          , menuType=${menuType}
-          , price=${price}
-          , contents=${contents}
-          , startDate=${startDate}
-          , endDate=${endDate}`
-    });
-    return;
-  }
-  
-  const connection = await pool.getConnection();
-
-  try {
-    
-    const queryString = 
-    `UPDATE MENU 
-        SET PRICE = ?
-          , ORIGINAL_IMAGE = ?
-          , CONTENTS = ?
-          , MENU_TYPE = ?
-          , START_DATE = ?
-          , END_DATE = ?
-          , MODIFIED_USER_ID = ?
-          , MODIFIED_TIME = NOW()
-      WHERE MENU_ID = ?`
-    
-    let queryParam = [
-      price
-      , originalImage
-      , contents
-      , menuType
-      , startDate
-      , endDate
-      , modifiedUserId
-      , menuId 
-    ]
-    
-    let result = await connection.execute(queryString, queryParam);
-    
-    if (result[0].affectedRows == 1) {
-      res.status(errCode.OK);
-      res.json({
-        errCode: errCode.OK,
-        msg: result.message
-      });
-    } else {
-      throw new Error('menu update error.')
-    }
-
-  } catch (err) {
-    
-    imageHandler.deleteImages(blockBlobURL, blobName, "SQL error");
-
-    res.status(errCode.OK);
-    res.json({
-      errCode: errCode.NOTFOUND,
-      msg: "메뉴수정을 실패하였습니다."
-    });
-
-    throw err
-
-  } finally {
-
-    connection.release();
-
-  }
 }))
 
 // 메뉴 리스트 조회
@@ -311,4 +201,201 @@ router.get('/api/menu', asyncHandler(async (req, res, next) => {
     }
     
 }))
+
+async function  menuUpdateWithoutFile(req, res){
+
+  const menuId         = req.body.menuId;
+  const price          = req.body.price;
+  const contents       = req.body.contents;
+  const menuType       = req.body.menuType;
+  const startDate      = req.body.startDate;
+  const endDate        = req.body.endDate;
+  const modifiedUserId = req.tokenContent.content.userId;
+  
+  if ( !menuId
+    || !menuType
+    || !price
+    || !contents
+    || !startDate
+    || !endDate) {
+
+    res.status(errCode.OK);
+    res.json({
+      errCode: errCode.BADREQUEST,
+      msg: `입력값을 확인해주세요.
+            menuId=${menuId}
+          , menuType=${menuType}
+          , price=${price}
+          , contents=${contents}
+          , startDate=${startDate}
+          , endDate=${endDate}`
+    });
+    return;
+  }
+  
+  const connection = await pool.getConnection();
+
+  try {
+    
+    const queryString = 
+    `UPDATE MENU 
+        SET PRICE = ?
+          , CONTENTS = ?
+          , MENU_TYPE = ?
+          , START_DATE = ?
+          , END_DATE = ?
+          , MODIFIED_USER_ID = ?
+          , MODIFIED_TIME = NOW()
+      WHERE MENU_ID = ?`
+    
+    let queryParam = [
+        price
+      , contents
+      , menuType
+      , startDate
+      , endDate
+      , modifiedUserId
+      , menuId 
+    ]
+    
+    let result = await connection.execute(queryString, queryParam);
+    
+    if (result[0].affectedRows == 1) {
+
+      res.status(errCode.OK);
+      res.json({
+        errCode: errCode.OK,
+        msg: result.message
+      });
+    } else {
+      throw new Error('menu update error.')
+    }
+
+  } catch (err) {
+
+    res.status(errCode.OK);
+    res.json({
+      errCode: errCode.NOTFOUND,
+      msg: "메뉴수정을 실패하였습니다."
+    });
+
+    throw err
+
+  } finally {
+
+    connection.release();
+
+  }
+}
+
+async function menuUpdateWithFile(req, res){
+
+  let originalImage = ''
+  let blockBlobURL = ''
+  let blobName = ''
+
+  try {
+
+    let result = await imageHandler.imageUpload(req.file)
+    originalImage = result.src
+    blockBlobURL = result.URL
+    blobName = result.name
+
+  } catch (err) {
+    res.status(errCode.OK);
+    res.json({
+      errCode: errCode.SERVERERROR,
+      msg: err
+    });
+    return;
+  }
+
+  const menuId         = req.body.menuId;
+  const price          = req.body.price;
+  const contents       = req.body.contents;
+  const menuType       = req.body.menuType;
+  const startDate      = req.body.startDate;
+  const endDate        = req.body.endDate;
+  const modifiedUserId = req.tokenContent.content.userId;
+  
+  if ( !menuId
+    || !menuType
+    || !price
+    || !contents
+    || !startDate
+    || !endDate) {
+
+    res.status(errCode.OK);
+    res.json({
+      errCode: errCode.BADREQUEST,
+      msg: `입력값을 확인해주세요.
+            menuId=${menuId}
+          , menuType=${menuType}
+          , price=${price}
+          , contents=${contents}
+          , startDate=${startDate}
+          , endDate=${endDate}`
+    });
+    return;
+  }
+  
+  const connection = await pool.getConnection();
+
+  try {
+    
+    const queryString = 
+    `UPDATE MENU 
+        SET PRICE = ?
+          , ORIGINAL_IMAGE = ?
+          , CONTENTS = ?
+          , MENU_TYPE = ?
+          , START_DATE = ?
+          , END_DATE = ?
+          , MODIFIED_USER_ID = ?
+          , MODIFIED_TIME = NOW()
+      WHERE MENU_ID = ?`
+    
+    let queryParam = [
+      price
+      , originalImage
+      , contents
+      , menuType
+      , startDate
+      , endDate
+      , modifiedUserId
+      , menuId 
+    ]
+    
+    let result = await connection.execute(queryString, queryParam);
+    
+    if (result[0].affectedRows == 1) {
+
+      res.status(errCode.OK);
+      res.json({
+        errCode: errCode.OK,
+        msg: result.message
+      });
+    } else {
+      throw new Error('menu update error.')
+    }
+
+  } catch (err) {
+    
+    imageHandler.deleteImages(blockBlobURL, blobName, "SQL error");
+
+    res.status(errCode.OK);
+    res.json({
+      errCode: errCode.NOTFOUND,
+      msg: "메뉴수정을 실패하였습니다."
+    });
+
+    throw err
+
+  } finally {
+
+    connection.release();
+
+  }
+
+}
 module.exports = router;
