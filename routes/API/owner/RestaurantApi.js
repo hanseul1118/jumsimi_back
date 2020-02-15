@@ -1,5 +1,6 @@
 const errCode = require("../../../middleware/errorCode");
 const imageHandler = require("../../../middleware/imageHandler");
+const tokenFun = require("../../../middleware/tokenHandler.js");
 const pool = require("../../../databaseConnect.js");
 const asyncHandler = require("express-async-handler");
 const express = require("express");
@@ -10,7 +11,7 @@ const inMemoryStorage = multer.memoryStorage();
 const uploadStrategy = multer({ storage: inMemoryStorage }).single("file"); // or .single('image')
 
 router.post(
-  "/api/restaurant", uploadStrategy, 
+  "/api/restaurant", tokenFun.verifyToken, uploadStrategy, 
   asyncHandler(async (req, res, next) => {
 
     let file = req.file;

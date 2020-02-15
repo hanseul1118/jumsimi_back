@@ -1,5 +1,6 @@
 const errCode = require("../../../middleware/errorCode");
 const imageHandler = require("../../../middleware/imageHandler");
+const tokenFun = require("../../../middleware/tokenHandler.js");
 const pool = require('../../../databaseConnect.js')
 const asyncHandler = require('express-async-handler')
 const express = require('express')
@@ -29,8 +30,8 @@ router.get('/api/menudetail', asyncHandler(async (req, res, next) => {
   try {
     
     const queryString = 
-    `SELECT 
-            M.PRICE					                            AS PRICE
+    `SELECT R.USER_ID                                   AS USER_ID
+          , M.PRICE					                            AS PRICE
           , M.ORIGINAL_IMAGE		                        AS MENU_IMAGE 
           , M.CONTENTS				                          AS CONTENTS 
           , M.MENU_TYPE				                          AS MENU_TYPE 
@@ -62,6 +63,7 @@ router.get('/api/menudetail', asyncHandler(async (req, res, next) => {
       res.status(errCode.OK);
       res.json({
         errCode            : errCode.OK,
+        userId             : result[0][0].USER_ID,
         price              : result[0][0].PRICE,
         menuImage          : result[0][0].MENU_IMAGE,
         contents           : result[0][0].CONTENTS,
@@ -75,7 +77,7 @@ router.get('/api/menudetail', asyncHandler(async (req, res, next) => {
         restaurantImage1   : result[0][0].RESTAURANT_IMAGE_1,
         restaurantImage2   : result[0][0].RESTAURANT_IMAGE_2,
         restaurantImage3   : result[0][0].RESTAURANT_IMAGE_3,
-        restaurant_Image4  : result[0][0].RESTAURANT_IMAGE_4,
+        restaurantImage4  : result[0][0].RESTAURANT_IMAGE_4,
         restaurantId       : result[0][0].RESTAURANT_ID,
         gpsX               : result[0][0].GPS_X,
         gpsY               : result[0][0].GPS_Y
@@ -101,8 +103,18 @@ router.get('/api/menudetail', asyncHandler(async (req, res, next) => {
 }))
 
 // 메뉴 업데이트
-router.put('/api/menu', uploadStrategy, asyncHandler(async (req, res, next) => {
+router.put('/api/menu', tokenFun.verifyToken, uploadStrategy, asyncHandler(async (req, res, next) => {
   
+  //토큰 유효성 검사
+  const token = req.query.token;
+  req.tokenContent = tokenFun.verifyData(token);
+
+  if (req.tokenContent.errCode != errCode.OK) {
+    res.status(errCode.OK);
+    res.json(req.tokenContent);
+    return;
+  }
+
   let file = req.file;
 
   if (!file) {
@@ -135,7 +147,6 @@ router.put('/api/menu', uploadStrategy, asyncHandler(async (req, res, next) => {
       });
       return;
     }
-
   }
 
   const menuId = req.body.menuId;
@@ -214,7 +225,6 @@ router.put('/api/menu', uploadStrategy, asyncHandler(async (req, res, next) => {
     connection.release();
 
   }
-
 }))
 
 // 메뉴 리스트 조회
