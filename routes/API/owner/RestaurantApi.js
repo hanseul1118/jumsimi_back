@@ -50,7 +50,6 @@ router.post(
     } catch (err) {
 
       if (err) {
-        console.log('err : ', err);
         res.status(errCode.OK);
         res.json({
           errCode: errCode.SERVERERROR,

@@ -87,7 +87,7 @@ router.get('/api/menudetail', tokenFun.verifyToken, asyncHandler(async (req, res
         restaurantImage1   : result[0][0].RESTAURANT_IMAGE_1,
         restaurantImage2   : result[0][0].RESTAURANT_IMAGE_2,
         restaurantImage3   : result[0][0].RESTAURANT_IMAGE_3,
-        restaurantImage4  : result[0][0].RESTAURANT_IMAGE_4,
+        restaurantImage4   : result[0][0].RESTAURANT_IMAGE_4,
         restaurantId       : result[0][0].RESTAURANT_ID,
         gpsX               : result[0][0].GPS_X,
         gpsY               : result[0][0].GPS_Y
