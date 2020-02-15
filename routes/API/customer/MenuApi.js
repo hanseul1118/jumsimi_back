@@ -128,7 +128,6 @@ router.put('/api/menu', uploadStrategy, asyncHandler(async (req, res, next) => {
   } catch (err) {
 
     if (err) {
-      console.log('err : ', err);
       res.status(errCode.OK);
       res.json({
         errCode: errCode.SERVERERROR,
@@ -195,17 +194,19 @@ router.put('/api/menu', uploadStrategy, asyncHandler(async (req, res, next) => {
         msg: result.message
       });
     } else {
-      res.status(errCode.OK);
-      res.json({
-        errCode: errCode.NOTFOUND,
-        msg: "메뉴수정을 실패하였습니다."
-      });
+      throw new Error('menu update error.')
     }
 
   } catch (err) {
     
     imageHandler.deleteImages(blockBlobURL, blobName, "SQL error");
-    
+
+    res.status(errCode.OK);
+    res.json({
+      errCode: errCode.NOTFOUND,
+      msg: "메뉴수정을 실패하였습니다."
+    });
+
     throw err
 
   } finally {
@@ -213,7 +214,6 @@ router.put('/api/menu', uploadStrategy, asyncHandler(async (req, res, next) => {
     connection.release();
 
   }
-
 
 }))
 

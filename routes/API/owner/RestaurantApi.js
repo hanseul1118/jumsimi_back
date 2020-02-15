@@ -12,7 +12,7 @@ const uploadStrategy = multer({ storage: inMemoryStorage }).single("file"); // o
 router.post(
   "/api/restaurant", uploadStrategy, 
   asyncHandler(async (req, res, next) => {
-    
+
     let file = req.file;
 
     if (!file) {
@@ -132,35 +132,29 @@ router.post(
                  , ?
                  , CURRENT_TIMESTAMP()
                  , CURRENT_TIMESTAMP())`;
+      
+      let qureyParam02 = [
+        resId,
+        resOwnersId,
+        restaurantName,
+        restaurantAddress,
+        restaurantPhone,
+        gpsX,
+        gpsY,
+        lunchOperationTime,
+        ORIGIN_SRC,
+        modifiedUserId
+      ]
 
-      await connection.execute(
-        queryString02,
-        [
-          resId,
-          resOwnersId,
-          restaurantName,
-          restaurantAddress,
-          restaurantPhone,
-          gpsX,
-          gpsY,
-          lunchOperationTime,
-          ORIGIN_SRC,
-          modifiedUserId
-        ],
-        function(err, result, feilds) {
-          
-          if (err) {
-            throw err
-          }
+      const result02 = await connection.execute(queryString02,qureyParam02)
 
-          if (result.affectedRows == 0) {
-            throw new Error('affectedRows is zero where restaurant table')
-          }
+      if(result02[0].affectedRows == 0) {
+        throw new Error('affectedRows is zero where restaurant table')
+      }
 
-          if (result.affectedRows >= 0) {
-            console.log('successfully inserted into restaurant');
-          }
-      });
+      if(result02[0].affectedRows == 1) {
+        console.log('successfully inserted into restaurant');
+      }
       
       const queryString03 =
       `INSERT INTO MENU
@@ -184,21 +178,16 @@ router.post(
                  , '20200101'
                  , CURRENT_TIMESTAMP()
                  , CURRENT_TIMESTAMP())`;
+      
+      const result03 = await connection.execute(queryString03, [resId])
+      
+      if(result03[0].affectedRows == 0) {
+        throw new Error('affectedRows is zero where menu table')
+      }
 
-      await connection.execute(queryString03, [resId], function(err, result, feilds) {
-        
-        if (err) {
-          throw err
-        }
-        
-        if (result.affectedRows == 0) {
-          throw new Error('affectedRows is zero where menu table')
-        }
-
-        if (result.affectedRows >= 0) {
-          console.log('successfully inserted into menu');
-        }
-      });
+      if(result03[0].affectedRows == 1) {
+        console.log('successfully inserted into menu');
+      }
       
       await connection.commit();
 
@@ -207,13 +196,17 @@ router.post(
         msg: "글 등록 완료"
       });
 
-      return;
-
     } catch (err) {
 
       await connection.rollback();
 
       imageHandler.deleteImages(blockBlobURL, blobName, "SQL error");
+
+      res.status(errCode.OK)
+      res.json({
+        errCode: errCode.SERVERERROR,
+        msg: "식당 정보 등록에 실패하였습니다."
+      });
 
       throw err;
 
