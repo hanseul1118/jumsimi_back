@@ -11,7 +11,17 @@ const inMemoryStorage = multer.memoryStorage();
 const uploadStrategy = multer({ storage: inMemoryStorage, limits: { fieldSize: 10 * 1024 * 1024 } }).single("file"); // or .single('image')
 
 // 메뉴 상세 조회
-router.get('/api/menudetail', asyncHandler(async (req, res, next) => {
+router.get('/api/menudetail', tokenFun.verifyToken, asyncHandler(async (req, res, next) => {
+  
+  //토큰 유효성 검사
+  const token = req.query.token;
+  req.tokenContent = tokenFun.verifyData(token);
+
+  if (req.tokenContent.errCode != errCode.OK) {
+    res.status(errCode.OK);
+    res.json(req.tokenContent);
+    return;
+  }
 
   const menuId = req.query.menuId;
 
@@ -30,7 +40,7 @@ router.get('/api/menudetail', asyncHandler(async (req, res, next) => {
   try {
     
     const queryString = 
-    `SELECT R.USER_ID                                   AS USER_ID
+    `SELECT R.RESTAURANT_OWNER_ID                       AS USER_ID
           , M.PRICE					                            AS PRICE
           , M.ORIGINAL_IMAGE		                        AS MENU_IMAGE 
           , M.CONTENTS				                          AS CONTENTS 
@@ -152,10 +162,13 @@ router.put('/api/menu', tokenFun.verifyToken, uploadStrategy, asyncHandler(async
   const menuId = req.body.menuId;
   const price = req.body.price;
   const contents = req.body.contents;
+  const menuType = req.body.menuType;
   const startDate = req.body.startDate;
   const endDate = req.body.endDate;
+  const modifiedUserId = req.tokenContent.content.userId;
 
   if (!menuId
+   || !menuType
    || !price
    || !contents
    || !startDate
@@ -165,6 +178,7 @@ router.put('/api/menu', tokenFun.verifyToken, uploadStrategy, asyncHandler(async
       errCode: errCode.BADREQUEST,
       msg: `입력값을 확인해주세요.
             menuId=${menuId}
+          , menuType=${menuType}
           , price=${price}
           , contents=${contents}
           , startDate=${startDate}
@@ -182,8 +196,10 @@ router.put('/api/menu', tokenFun.verifyToken, uploadStrategy, asyncHandler(async
         SET PRICE = ?
           , ORIGINAL_IMAGE = ?
           , CONTENTS = ?
+          , MENU_TYPE = ?
           , START_DATE = ?
           , END_DATE = ?
+          , MODIFIED_USER_ID = ?
           , MODIFIED_TIME = NOW()
       WHERE MENU_ID = ?`
     
@@ -191,8 +207,10 @@ router.put('/api/menu', tokenFun.verifyToken, uploadStrategy, asyncHandler(async
       price
       , originalImage
       , contents
+      , menuType
       , startDate
       , endDate
+      , modifiedUserId
       , menuId 
     ]
     

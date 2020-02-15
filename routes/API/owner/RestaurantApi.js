@@ -14,8 +14,19 @@ router.post(
   "/api/restaurant", tokenFun.verifyToken, uploadStrategy, 
   asyncHandler(async (req, res, next) => {
 
+    /* 토큰 유효성 검사 */
+    const token = req.query.token;
+    req.tokenContent = tokenFun.verifyData(token);
+
+    if (req.tokenContent.errCode != errCode.OK) {
+      res.status(errCode.OK);
+      res.json(req.tokenContent);
+      return;
+    }
+
     let file = req.file;
 
+    /* file 검증 */
     if (!file) {
       res.status(errCode.OK).json({
         errCode: errCode.BADREQUEST,
@@ -57,7 +68,7 @@ router.post(
     const gpsX = req.body.gpsX;
     const gpsY = req.body.gpsY;
     const lunchOperationTime = req.body.lunchOperationTime;
-    const modifiedUserId = req.body.modifiedUserId;
+    const modifiedUserId = req.tokenContent.content.userId;
 
     /* input 검증 */
     if (
@@ -110,7 +121,7 @@ router.post(
       const queryString02 =
       `INSERT INTO RESTAURANT
                  ( RESTAURANT_ID
-                 , USER_ID
+                 , RESTAURANT_OWNER_ID
                  , RESTAURANT_NAME
                  , RESTAURANT_ADDRESS
                  , RESTAURANT_PHONE
