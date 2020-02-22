@@ -15,7 +15,7 @@ router.get('/api/menudetail', tokenFun.verifyToken, asyncHandler(async (req, res
   
   //토큰 유효성 검사
   const token = req.query.token;
-  req.tokenContent = tokenFun.verifyData(token);
+  req.tokenContent = await tokenFun.verifyData(token);
 
   if (req.tokenContent.errCode != errCode.OK) {
     res.status(errCode.OK);
