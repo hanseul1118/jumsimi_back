@@ -198,13 +198,13 @@ router.post(
                  , 'https://jumsimiowner.pickapick.io/res/unnamed.gif'
                  , '내용을 입력해 주세요.'
                  , '01'
-                 , '20200101'
-                 , '20200101'
+                 , DATE_FORMAT(CURRENT_TIMESTAMP(),'%Y%m%d')
+                 , DATE_FORMAT(CURRENT_TIMESTAMP(),'%Y%m%d')
                  , CURRENT_TIMESTAMP()
                  , CURRENT_TIMESTAMP())`;
       
       const result03 = await connection.execute(queryString03, [resId])
-      
+      console.log('result03', result03)
       if(result03[0].affectedRows == 0) {
         throw new Error('affectedRows is zero where menu table')
       }
