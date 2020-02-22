@@ -34,6 +34,19 @@ router.post(
       });
       return;
     }
+    
+    /**
+     * 이미지 업로드 전
+     * admin 인지 체크 후 아닐 경우 리턴
+     */
+    if(req.tokenContent.content.userId != 'admin') {
+      res.status(errCode.OK).json({
+        errCode: errCode.BADREQUEST,
+        msg: "user 가 admin 일 경우만 등록할 수 있습니다."
+      });
+      return;
+    } 
+
 
     let ORIGIN_SRC = ''
     let blockBlobURL = ''
@@ -57,9 +70,9 @@ router.post(
         });
         return;
       }
-
+      
     }
-
+    
     const resOwnersId = req.body.resOwnersId;
     const restaurantName = req.body.restaurantName;
     const restaurantAddress = req.body.restaurantAddress;
