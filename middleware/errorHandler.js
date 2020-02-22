@@ -1,7 +1,6 @@
 const errCode = require("./errorCode");
 const logger = require("../config/logConfig.js");
 
-console.log('logger', logger)
 
 exports.ConnectionErrorHandler = function(err, connection) {
   console.log('ConnectionErrorHandler err : ', err)
@@ -38,7 +37,6 @@ exports.QueryErrorHandler = function(err, connection) {
 
 exports.TokenErrorHandler = function(err) {
   console.log('TokenErrorHandler err : ', err)
-  console.log('loggerlogger', logger)
   if (err) {
     // logger.error('' + err)
     switch (err) {
