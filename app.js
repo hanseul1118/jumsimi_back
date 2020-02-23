@@ -10,7 +10,7 @@ const ownerMenuApi = require('./routes/API/owner/MenuApi.js');
 const ownerRestaurantApi = require('./routes/API/owner/RestaurantApi.js');
 const ownerUserApi = require('./routes/API/owner/UserApi.js');
 
-app.use(cors()); // config 추가
+app.use(cors());
 
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
