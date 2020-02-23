@@ -42,7 +42,7 @@ router.post(
     if(req.tokenContent.content.userId != 'admin') {
       res.status(errCode.OK).json({
         errCode: errCode.BADREQUEST,
-        msg: "user 가 admin 일 경우만 등록할 수 있습니다."
+        msg: "user 가 admin 일 경우만 식당을 등록할 수 있습니다."
       });
       return;
     } 
