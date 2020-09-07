@@ -66,22 +66,6 @@ router.get('/api/login', asyncHandler(async (req, res, next) => {
 	
 }))
 
-// function GenerateHMAC(key, payload) {
-//   // 암호화 객체 생성, sha256 알고리즘 선택
-//   var hmac = crypto.createHmac('sha256', key);
-//   // 암호화할 본문 생성
-//   var message = new Buffer.from(payload).toString('base64');
 
-//   hmac.write(message);
-//   hmac.end();
-
-//   return hmac.read();
-// }
-
-// function getEncryption (password) {
-// var hash = GenerateHMAC(password, 'sha256');
-// var encoded_hash  = new Buffer.from(hash).toString('base64');
-// return encoded_hash
-// }
 
 module.exports = router;
